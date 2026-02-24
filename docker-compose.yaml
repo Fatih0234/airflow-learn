@@ -72,7 +72,7 @@ x-airflow-common:
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     # The following line can be used to set a custom config file, stored in the local config folder
-    AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'    
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -94,13 +94,31 @@ services:
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - postgres1-db-volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
       retries: 5
       start_period: 5s
     restart: always
+
+    
+  postgres-2:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES2_USER}
+      POSTGRES_PASSWORD: ${POSTGRES2_PASSWORD}
+      POSTGRES_DB: ${POSTGRES2_DB}
+    volumes:
+      - postgres2-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sekanti0232 -d postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+
 
   # redis:
   #   # Redis is limited to 7.2-bookworm due to licencing change
@@ -328,4 +346,5 @@ services:
   #       condition: service_completed_successfully
 
 volumes:
-  postgres-db-volume:
+  postgres1-db-volume:
+  postgres2-db-volume:
